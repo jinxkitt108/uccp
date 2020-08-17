@@ -31,6 +31,7 @@ const routes = [
     },
     children: [
       { path: '/staff-dashboard', component: () => import('pages/staff/Dashboard.vue') },
+      { path: '/staff-calendar-events', component: () => import('pages/staff/CalendarEvents.vue') },
       { path: '/staff-members', component: () => import('pages/staff/Members.vue') },
       { path: '/staff-marriage', component: () => import('pages/staff/Marriage.vue') },
       { path: '/staff-baptism', component: () => import('pages/staff/Baptism.vue') }

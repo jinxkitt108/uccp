@@ -66,6 +66,7 @@ export default {
     store.dispatch("members/getMembers");
     store.dispatch("marriages/getRecords");
     store.dispatch("baptismals/getBaptismalRecords");
+    store.dispatch("events/getEvents");
   },
 
   data() {
@@ -76,6 +77,11 @@ export default {
           name: "Dashboard",
           path: "/staff-dashboard",
           icon: "icons/app_icons/dashboard.svg"
+        },
+        {
+          name: "Calendar Events",
+          path: "/staff-calendar-events",
+          icon: "icons/app_icons/calendar.svg"
         },
         {
           name: "Members",

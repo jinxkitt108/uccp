@@ -6,6 +6,7 @@ import auth from "./modules/auth";
 import members from "./modules/members";
 import marriages from "./modules/marriages";
 import baptismals from "./modules/baptismals";
+import events from "./modules/events";
 
 Vue.use(Vuex);
 
@@ -21,7 +22,7 @@ Vue.use(Vuex);
 export default function(/* { ssrContext } */) {
   const Store = new Vuex.Store({
     modules: {
-      users, auth, members, marriages, baptismals
+      users, auth, members, marriages, baptismals, events
     },
 
     // enable strict mode (adds overhead!)

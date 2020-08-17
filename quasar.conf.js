@@ -19,7 +19,9 @@ module.exports = function (/* ctx */) {
     // https://quasar.dev/quasar-cli/boot-files
     boot: [
       'other-plug-ins',
-      'firebase'
+      'firebase',
+      'quasar-ext',
+      'quasar-utils'
     ],
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
