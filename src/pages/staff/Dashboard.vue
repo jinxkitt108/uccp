@@ -35,8 +35,55 @@
         </q-card-section>
       </q-card>
     </div>
-    <div class="row q-pa-md q-gutter-md">
-      <q-card style="width: 400px">
+
+    <div class="row q-pa-md q-gutter-lg">
+      <div class="col q-pa-sm ">
+        <q-card bordered>
+          <q-card-section>
+            <div class="text-subtitle1 text-bold">Events</div>
+
+            <q-scroll-area
+              class="rounded-borders"
+              :thumb-style="thumbStyle"
+              :bar-style="barStyle"
+              style="height: 200px"
+            >
+              <q-list>
+                <q-item v-for="event in events" :key="event.id">
+                  <q-item-section avatar>
+                    <q-icon color="primary" name="event_note" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label>{{ event.title }}</q-item-label>
+                    <q-item-label caption class="text-bold text-dark">
+                      {{ formatTimestamp(event.date, event.time) }}
+                    </q-item-label>
+                    <q-item-label caption lines="2">{{
+                      event.desc
+                    }}</q-item-label>
+                  </q-item-section>
+                  <div>
+                    <q-btn
+                      @click="deleteEvent(event.id)"
+                      color="red-10"
+                      icon="delete"
+                      flat
+                      round
+                      no-caps
+                    >
+                      <q-tooltip anchor="bottom middle" self="top middle">
+                        Delete Event
+                      </q-tooltip>
+                    </q-btn>
+                  </div>
+                </q-item>
+              </q-list>
+            </q-scroll-area>
+          </q-card-section>
+        </q-card>
+      </div>
+      <!--  Mini Calendar -->
+      <q-card class="col">
         <q-toolbar class="justify-between">
           <q-btn @click="onPrev" icon="arrow_left" label="Prev" flat dense />
           <q-toolbar-title class="text-center text-subtitle1 text-bold">
@@ -59,102 +106,29 @@
         />
       </q-card>
     </div>
-    <!--   <div class="q-pa-md">
-      <q-card>
-        <q-card-section>
-          <div class="row justify-between">
-            <div>
-              <q-btn flat label="Prev" @click="calendarPrev" />
-              <q-btn flat label="Next" @click="calendarNext" />
-            </div>
-            <div class="text-h6">{{ calendar_title }}</div>
-            <q-btn
-              @click="openDialog"
-              label="Add Event"
-              flat
-              color="primary"
-              style="border: 1px solid blue; border-style: dashed"
-              icon="add"
-            />
-            <q-dialog v-model="event_dialog" persistent>
-              <q-card style="width: 700px; max-width: 80vw;">
-                <q-card-section class="text-h6 text-center">
-                  {{ editMode ? "Edit Event" : "New Event Details" }}
-                </q-card-section>
-                <q-card-section>
-                  <q-form @submit="saveEvent" class="q-gutter-md">
-                    <div class="row q-gutter-md justify-center item-center">
-                      <q-date v-model="event_form.date" />
-                      <q-time v-model="event_form.time" />
-                    </div>
-                    <q-input
-                      v-model="event_form.title"
-                      class="q-mx-auto"
-                      label="Event Title"
-                      style="max-width: 300px"
-                    />
-                    <q-input
-                      v-model="event_form.desc"
-                      type="textarea"
-                      label="Event Description"
-                      outlined
-                      dense
-                    />
-                    <div class="row q-gutter-md">
-                      <q-space />
-                      <q-btn @click="close" label="Cancel" flat dense />
-                      <q-btn type="submit" label="Save" color="primary" dense />
-                    </div>
-                  </q-form>
-                </q-card-section>
-              </q-card>
-            </q-dialog>
-          </div>
-        </q-card-section>
-        <q-card-section style="overflow: hidden">
-          <q-calendar
-            v-model="selectedDate"
-            ref="calendar"
-            view="week-agenda"
-            :weekdays="[1, 2, 3, 4, 5, 6, 0]"
-            transition-prev="slide-right"
-            transition-next="slide-left"
-            style="height: 300px;"
-            @change="onChange"
-            animated
-          >
-            <template #day-body="{ timestamp }">
-              <template v-for="agenda in getAgenda(timestamp)">
-                <div
-                  :key="timestamp.date + agenda.time"
-                  :label="agenda.time"
-                  class="justify-start q-ma-sm shadow-5 bg-grey-6"
-                >
-                  <div class="col-12 q-px-sm">
-                    <strong>{{ agenda.time }}</strong>
-                  </div>
-                  <div
-                    v-if="agenda.desc"
-                    class="col-12 q-px-sm"
-                    style="font-size: 10px;"
-                  >
-                    {{ agenda.desc }}
-                  </div>
-                </div>
-              </template>
-            </template>
-          </q-calendar>
-        </q-card-section>
-      </q-card>
-    </div> -->
   </q-page>
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapGetters, mapActions } from "vuex";
 export default {
   data() {
     return {
+      thumbStyle: {
+        right: "4px",
+        borderRadius: "5px",
+        backgroundColor: "#027be3",
+        width: "5px",
+        opacity: 0.75
+      },
+
+      barStyle: {
+        right: "2px",
+        borderRadius: "9px",
+        backgroundColor: "#027be3",
+        width: "9px",
+        opacity: 0.2
+      },
       month_title: "",
       selectedDate: "",
       editMode: false,
@@ -171,10 +145,38 @@ export default {
   computed: {
     ...mapState("members", ["members"]),
     ...mapState("marriages", ["records"]),
-    ...mapState("baptismals", ["baptismal_records"])
+    ...mapState("baptismals", ["baptismal_records"]),
+    ...mapState("events", ["events"])
   },
 
   methods: {
+    ...mapActions("events", ["removeEvent"]),
+
+    deleteEvent(id) {
+      this.$q
+        .dialog({
+          title: "Confirm Delete",
+          message: "Remove event?",
+          cancel: true,
+          persistent: true
+        })
+        .onOk(() => {
+          this.removeEvent(id).then(() => {
+            this.$q.notify({
+              message: "Event removed!",
+              icon: "thumb_up",
+              color: "positive"
+            });
+          });
+        });
+    },
+
+    formatTimestamp(d, t) {
+      let timestamp = new Date(d + " " + t);
+      let formattedString = date.formatDate(timestamp, "MMM D, YYYY @h:mm A");
+      return formattedString;
+    },
+
     onPrev() {
       this.$refs.calendar.prev();
     },
@@ -183,9 +185,9 @@ export default {
       this.$refs.calendar.next();
     },
 
-    onChange({start}) {
-      let timestamp = start.date
-      this.month_title = date.formatDate(timestamp, "MMMM" )
+    onChange({ start }) {
+      let timestamp = start.date;
+      this.month_title = date.formatDate(timestamp, "MMMM");
     }
   }
 };

@@ -41,21 +41,27 @@ const actions = {
           record.id = id;
           commit("setEvents", record);
         }
-        if (change.type == "modified") {
+        /*    if (change.type == "modified") {
           let record = change.doc.data();
           let id = change.doc.id;
           record.id = id;
           commit("setUpdatedEvent", record);
-        }
+        } */
         if (change.type == "removed") {
           let id = change.doc.id;
           commit("setRemovedEvent", id);
         }
+        commit("sortEvents");
       });
     });
   },
 
-/*
+  async removeEvent({}, id) {
+    let ref = db.collection("events").doc(id);
+    ref.delete();
+  }
+
+  /*
 
   async updateRecord({}, payload) {
     let ref = db.collection("baptismal_records").doc(payload.id);
@@ -88,7 +94,12 @@ const mutations = {
     }
   },
   setRemovedEvent: (state, id) =>
-    (state.events = state.events.filter(event => event.id !== id))
+    (state.events = state.events.filter(event => event.id !== id)),
+  sortEvents: state => {
+    let array = state.events.sort(function(a, b) {
+      return new Date(a.date + " " + a.time) - new Date(b.date + " " + b.time);
+    });
+  }
 };
 
 export default {

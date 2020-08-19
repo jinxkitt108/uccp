@@ -1,6 +1,6 @@
 <template>
   <q-page padding>
-    <q-card class="q-pa-md">
+    <q-card class="q-pa-md" style="height: 100%">
       <q-toolbar class="row justify-between items-center bg-blue-9">
         <q-btn-group flat>
           <q-btn color="white" flat label="Prev" @click="onPrev" />
@@ -32,9 +32,11 @@
                 formatTime(event.date, event.time)
               }}</span>
               <q-tooltip transition-show="rotate" transition-hide="rotate">
-                <div class="text-subtitle2">{{ event.title }}</div>
-                <div class="text-subtitle2">{{ event.time }}</div>
-                <div class="text-caption q-mt-sm">{{ event.desc }}</div>
+                <div style="width: 200px">
+                  <div class="text-subtitle2">{{ event.title }}</div>
+                  <div class="text-subtitle2">{{ event.time }}</div>
+                  <p class="text-caption q-mt-sm">{{ event.desc }}</p>
+                </div>
               </q-tooltip>
             </q-badge>
           </template>
@@ -74,7 +76,6 @@
                   :bg-color="event_form.color"
                   readonly
                   borderless
-
                 >
                   <template v-slot:append>
                     <q-icon name="colorize" class="cursor-pointer">
@@ -154,7 +155,6 @@ export default {
     },
 
     openDialog(data) {
-      console.log(data);
       this.event_form.date = data.scope.date;
       this.event_dialog = true;
     },

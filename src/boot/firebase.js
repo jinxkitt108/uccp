@@ -18,4 +18,15 @@ let firebaseApp = firebase.initializeApp(firebaseConfig);
 let auth = firebaseApp.auth();
 let db = firebaseApp.firestore();
 
-export { auth, db }
+//Offline Data Handling Firestore
+db.enablePersistence().catch(err => {
+  if (err.code == "failed-precondition") {
+    //Multiple tabs open at once
+    console.log("persistence failed");
+  } else if (err.code == "unimplemented") {
+    //Lack of browser support
+    console.log("persistence is not available.");
+  }
+});
+
+export { auth, db };

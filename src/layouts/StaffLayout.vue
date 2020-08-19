@@ -13,7 +13,7 @@
       </q-toolbar>
     </q-header>
 
-    <q-drawer v-model="left" side="left" bordered>
+    <q-drawer v-model="left" side="left" show-if-above bordered>
       <div class="text-center q-pa-md">
         <q-avatar size="50px" square>
           <q-img src="icons/app_icons/profile.svg" />
@@ -40,7 +40,7 @@
             {{ route.name }}
           </q-item-section>
         </q-item>
-        <q-item clickable v-ripple>
+        <q-item @click="logout" clickable v-ripple>
           <q-item-section avatar>
             <q-icon name="logout" />
           </q-item-section>
@@ -59,7 +59,7 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapActions } from "vuex";
 import { preFetch } from "quasar/wrappers";
 export default {
   preFetch({ store }) {
@@ -71,31 +71,31 @@ export default {
 
   data() {
     return {
-      left: true,
+      left: false,
       routes: [
         {
           name: "Dashboard",
-          path: "/staff-dashboard",
+          path: "/staff/dashboard",
           icon: "icons/app_icons/dashboard.svg"
         },
         {
           name: "Calendar Events",
-          path: "/staff-calendar-events",
+          path: "/staff/calendar-events",
           icon: "icons/app_icons/calendar.svg"
         },
         {
           name: "Members",
-          path: "/staff-members",
+          path: "/staff/members",
           icon: "icons/app_icons/group.svg"
         },
         {
           name: "Marriage",
-          path: "/staff-marriage",
+          path: "/staff/marriage",
           icon: "icons/app_icons/wedding-rings.svg"
         },
         {
           name: "Baptism",
-          path: "/staff-baptism",
+          path: "/staff/baptism",
           icon: "icons/app_icons/dove.svg"
         }
       ]
@@ -106,8 +106,12 @@ export default {
     ...mapState("auth", ["currentUser"])
   },
 
-  mounted() {
-    this.$router.push("/staff-dashboard");
+  methods: {
+    ...mapActions('auth', ['logoutUser']),
+
+    logout() {
+      this.logoutUser()
+    }
   }
 };
 </script>

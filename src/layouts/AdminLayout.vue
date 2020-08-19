@@ -30,8 +30,7 @@
           :key="index"
           clickable
           v-ripple
-          :to="route.path ? route.path : null"
-          @click="route.name == 'Log Out' ? logoutUser() : null"
+          :to="route.path"
         >
           <q-item-section avatar>
             <q-icon :name="route.icon" />
@@ -39,6 +38,15 @@
 
           <q-item-section>
             {{ route.name }}
+          </q-item-section>
+        </q-item>
+        <q-item clickable v-ripple @click="logoutUser">
+          <q-item-section avatar>
+            <q-icon name="logout" />
+          </q-item-section>
+
+          <q-item-section class="text-red-8 text-bold">
+            Log Out
           </q-item-section>
         </q-item>
       </q-list>
@@ -62,9 +70,8 @@ export default {
     return {
       left: true,
       routes: [
-        { name: "Dashboard", path: "/admin-dashboard", icon: "dashboard" },
-        { name: "Users", path: "/admin-users", icon: "group" },
-        { name: "Log Out", icon: "logout" },
+        { name: "Dashboard", path: "/admin/dashboard", icon: "dashboard" },
+        { name: "Users", path: "/admin/users", icon: "group" }
       ]
     };
   },
@@ -74,11 +81,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('auth', ['logoutUser'])
-  },
-
-  mounted() {
-    this.$router.push("/admin-dashboard");
+    ...mapActions("auth", ["logoutUser"])
   }
 };
 </script>

@@ -29,6 +29,7 @@
           ></q-input>
           <div class="text-center q-py-md q-px-sm">
             <q-btn
+            :loading="login_loading"
               type="submit"
               label="Log In"
               color="primary"
@@ -59,7 +60,7 @@ export default {
   },
 
   computed: {
-    ...mapState('auth', ['login_error'])
+    ...mapState('auth', ['login_error', 'login_loading'])
   },
 
   methods: {

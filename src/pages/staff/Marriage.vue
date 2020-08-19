@@ -32,16 +32,25 @@
           </div>
         </template>
         <template v-slot:top-right>
-          <q-input
-            dense
-            debounce="300"
-            v-model="filter"
-            placeholder="Search for records"
-          >
-            <template v-slot:append>
-              <q-icon name="search" />
-            </template>
-          </q-input>
+          <div class="row q-gutter-md">
+            <q-btn
+              color="primary"
+              icon-right="archive"
+              label="Export to File"
+              no-caps
+              @click="exportTable"
+            />
+            <q-input
+              dense
+              debounce="300"
+              v-model="filter"
+              placeholder="Search for records"
+            >
+              <template v-slot:append>
+                <q-icon name="search" />
+              </template>
+            </q-input>
+          </div>
         </template>
         <template v-slot:body-cell-actions="props">
           <q-td :props="props">
@@ -67,14 +76,20 @@
     </div>
 
     <!-- New Record Dialog -->
-    <q-dialog v-model="record_dialog">
-      <q-card style="width: 700px; max-width: 80vw;">
-        <q-card-section>
-          <div class="text-h6 text-center">
+    <q-dialog
+      maximized
+      transition-show="slide-up"
+      transition-hide="slide-down"
+      v-model="record_dialog"
+    >
+      <q-card>
+        <q-toolbar class="bg-primary text-white">
+          <q-toolbar-title>
             {{ editMode ? "Edit Details" : "New Record Details" }}
-          </div>
-        </q-card-section>
-
+          </q-toolbar-title>
+          <q-space />
+          <q-btn flat @click="closeDialog" label="Close" />
+        </q-toolbar>
         <q-card-section class="q-pt-none">
           <q-form
             @submit="editMode ? update() : saveNewRecord()"
@@ -170,6 +185,23 @@
 
 <script>
 import { mapActions, mapState } from "vuex";
+
+function wrapCsvValue(val, formatFn) {
+  let formatted = formatFn !== void 0 ? formatFn(val) : val;
+
+  formatted =
+    formatted === void 0 || formatted === null ? "" : String(formatted);
+
+  formatted = formatted.split('"').join('""');
+  /**
+   * Excel accepts \n and \r in strings, but some other CSV parsers do not
+   * Uncomment the next two lines to escape new lines
+   */
+  // .split('\n').join('\\n')
+  // .split('\r').join('\\r')
+
+  return `"${formatted}"`;
+}
 export default {
   data() {
     return {
@@ -264,6 +296,36 @@ export default {
 
   methods: {
     ...mapActions("marriages", ["addRecord", "updateRecord", "removeRecord"]),
+
+    exportTable() {
+      // naive encoding to csv format
+      const content = [this.columns.map(col => wrapCsvValue(col.label))]
+        .concat(
+          this.records.map(row =>
+            this.columns
+              .map(col =>
+                wrapCsvValue(
+                  typeof col.field === "function"
+                    ? col.field(row)
+                    : row[col.field === void 0 ? col.name : col.field],
+                  col.format
+                )
+              )
+              .join(",")
+          )
+        )
+        .join("\r\n");
+
+      const status = exportFile("table-export.csv", content, "text/csv");
+
+      if (status !== true) {
+        this.$q.notify({
+          message: "Browser denied file download...",
+          color: "negative",
+          icon: "warning"
+        });
+      }
+    },
 
     async deleteRecord(id) {
       this.$q
